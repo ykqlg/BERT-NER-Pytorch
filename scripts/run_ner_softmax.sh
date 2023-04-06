@@ -2,11 +2,12 @@ CURRENT_DIR=`pwd`
 export BERT_BASE_DIR=$CURRENT_DIR/prev_trained_model/bert-base-chinese
 export DATA_DIR=$CURRENT_DIR/datasets
 export OUTPUR_DIR=$CURRENT_DIR/outputs
-TASK_NAME="cner"
-
+TASK_NAME="game"
+MODOL_NAME="bert-base-chinese"
+#
 python run_ner_softmax.py \
   --model_type=bert \
-  --model_name_or_path=$BERT_BASE_DIR \
+  --model_name_or_path=$MODOL_NAME \
   --task_name=$TASK_NAME \
   --do_train \
   --do_eval \

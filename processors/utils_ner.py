@@ -1,6 +1,7 @@
 import csv
 import json
 import torch
+import pandas as pd
 from transformers import BertTokenizer
 
 class DataProcessor(object):
@@ -27,6 +28,28 @@ class DataProcessor(object):
             for line in reader:
                 lines.append(line)
             return lines
+
+    @classmethod
+    def _read_csv(cls, input_file, quotechar=None):
+        """Reads a tab separated value file."""
+        # with open(input_file, "r", encoding="utf-8-sig") as f:
+        #     reader = csv.reader(f, delimiter="\t", quotechar=quotechar)
+        #     lines = []
+        #     for line in reader:
+        #         lines.append(line)
+        #     return lines
+        df = pd.read_csv(input_file)
+        lines = []  # dictionary-like list for recording original data sample
+        for idx, row in df.iterrows():
+            text = row['text']
+            if (type(text) == float):
+                print(text)
+                continue
+            tokens = list(row['text'])
+            tags = row['BIO_anno'].split()
+            class_ = row['class']
+            lines.append({"tokens": tokens, "labels": tags, "class": class_})
+        return lines
 
     @classmethod
     def _read_text(self,input_file):

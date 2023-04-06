@@ -137,7 +137,7 @@ def convert_examples_to_features(examples,label_list,max_seq_length,tokenizer,
             input_ids += [pad_token] * padding_length
             input_mask += [0 if mask_padding_with_zero else 1] * padding_length
             segment_ids += [pad_token_segment_id] * padding_length
-            label_ids += [pad_token] * padding_length
+            label_ids += [pad_token] * (max_seq_length - len(label_ids))
 
         assert len(input_ids) == max_seq_length
         assert len(input_mask) == max_seq_length
@@ -198,6 +198,42 @@ class CnerProcessor(DataProcessor):
             examples.append(InputExample(guid=guid, text_a=text_a, labels=labels))
         return examples
 
+class GameProcessor(DataProcessor):
+    """Processor for the chinese ner data set."""
+
+    def get_train_examples(self, data_dir):
+        """See base class."""
+        return self._create_examples(self._read_csv(os.path.join(data_dir, "train_data_public.csv")), "train")
+
+    def get_dev_examples(self, data_dir):
+        """See base class."""
+        return self._create_examples(self._read_csv(os.path.join(data_dir, "dev_data.csv")), "dev")
+
+    def get_test_examples(self, data_dir):
+        """See base class."""
+        return self._create_examples(self._read_csv(os.path.join(data_dir, "test_public.csv")), "test")
+
+    def get_labels(self):
+        """See base class."""
+        return ["B-BANK","I-BANK","B-PRODUCT","O",
+                "I-PRODUCT","B-COMMENTS_N","I-COMMENTS_N",
+                "B-COMMENTS_ADJ","I-COMMENTS_ADJ",
+                "[START]", "[END]"]
+
+    def _create_examples(self, lines, set_type):
+        """Creates examples for the training and dev sets."""
+        examples = []
+        for (i, line) in enumerate(lines):
+            # print("what line:%s",line)
+            if i == 0:
+                continue
+            guid = "%s-%s" % (set_type, i)
+            text_a= line['tokens']
+            # BIOS
+            labels = line['labels']
+            examples.append(InputExample(guid=guid, text_a=text_a, labels=labels))
+        return examples
+
 class CluenerProcessor(DataProcessor):
     """Processor for the chinese ner data set."""
 
@@ -236,5 +272,6 @@ class CluenerProcessor(DataProcessor):
 
 ner_processors = {
     "cner": CnerProcessor,
-    'cluener':CluenerProcessor
+    'cluener':CluenerProcessor,
+    "game": GameProcessor
 }
